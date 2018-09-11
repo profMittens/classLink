@@ -5,9 +5,6 @@ import uuid
 import logging
 import csv
 from collections import namedtuple
-from apiclient.discovery import build
-from httplib2 import Http
-from oauth2client import file, client, tools
 inits = edukit.coreData.initializers()
 
 # Set up logging
@@ -126,40 +123,6 @@ class rosterManager(edukit.coreData.coreData):
             if s[inits.KEY_FNAME] == fname and s[inits.KEY_LNAME] == lname:
                 return s
         return None
-
-    def getGithubHandles(self):
-        SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
-        store = file.Storage('secrets/credentials.json')
-        creds = store.get()
- 
-        if not creds or creds.invalid:
-	        flow = client.flow_from_clientsecrets('secrets/client.secret', SCOPES)
-	        creds = tools.run_flow(flow, store)
-        service = build('sheets', 'v4', http=creds.authorize(Http()))
-
-        sid = ""
-        with open('secrets/spreadsheet_id.txt') as f:
-            sid = f.read()
-        
-        RANGE_NAME = 'Form Responses 1!A2:E'
-        result = service.spreadsheets().values().get(spreadsheetId=sid, range=RANGE_NAME).execute()
-        values = result.get('values', [])
-
-        if not values:
-            logger.error('No data found.')
-            exit()
-
-        fileModified = False
-        for row in values:
-            for s in self.roster:
-                if s[inits.KEY_FNAME] == row[1] and s[inits.KEY_LNAME] == row[2]:
-                    if s[inits.KEY_GITHUBHANDLE] == s[inits.VAL_DEFAULT_STR]:
-                        fileModified = True
-                        s[inits.KEY_GITHUBHANDLE] = row[4]
-                        logger.info("Updating {} {}'s handle to {}".format(s[inits.KEY_FNAME], s[inits.KEY_LNAME], s[inits.KEY_GITHUBHANDLE]))
-
-        if fileModified:
-            self.saveRoster()
 
     @staticmethod
     def createRoster(className, term):
