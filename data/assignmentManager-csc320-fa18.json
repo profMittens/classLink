@@ -1,0 +1,22 @@
+{
+    "attrs": {},
+    "filePath": "data/assignmentManager-csc320-fa18.json",
+    "className": "csc320",
+    "term": "fa18",
+    "assignments": [
+        {
+            "name": "a1",
+            "template": "a1_template",
+            "points": "30",
+            "githubName": "csc300-a1",
+            "due_date": "09/12/13"
+        },
+        {
+            "name": "a2",
+            "template": "a2_template",
+            "points": "30",
+            "githubName": "csc300-a2",
+            "due_date": "10/12/13"
+        }
+    ]
+}

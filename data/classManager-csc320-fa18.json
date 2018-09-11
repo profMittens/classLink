@@ -1,0 +1,11 @@
+{
+    "attrs": {
+        "zybook_code": "NA",
+        "vm_link": "NA"
+    },
+    "filePath": "data/classManager-csc320-fa18.json",
+    "className": "csc320",
+    "term": "fa18",
+    "instructor": "NA",
+    "sections": []
+}
