@@ -27,7 +27,7 @@ def parseArguments():
     parser.add_argument("-cr","--createRoster", help="Create a new instance of a roster for a class", action='store_true')
     parser.add_argument("-cl","--createAssignmentList", help="Create a new assingment list/manager for a given class")
     parser.add_argument("-ur", "--updateRoster", help="Update the app's roster using a csv file, provide the path to the csv")
-    parser.add_argument("-rt", "--rosterType", help="The type of roster csv that is being used. Valid options: wa")
+    parser.add_argument("-rt", "--rosterType", help="The type of roster csv that is being used. Valid options: wa, gs")
     parser.add_argument("-a","--attr", help="Name of a class attribute to set")
     parser.add_argument("-v","--val", help="The value of a class attribute to set")
     parser.add_argument("-pci","--printClassInfo", help="Print class information for the default class", action='store_true')
@@ -38,7 +38,7 @@ def parseArguments():
     parser.add_argument("-ag","--assignmentGithubName", help="The name of the assignment as published on github")
     parser.add_argument("-ad","--assignmentDueData", help="The due date for the assignment, in mm/dd/yyyy format")
     parser.add_argument("-pa","--printAssignments", help="Print the assignment list", action="store_true")
-    parser.add_argument("-ua","--updateHandles", help="Update github handles")
+    parser.add_argument("-uh","--updateGithubHandles", help="Update github handles from the specified csv, use -rt to specify csv type")
     return parser.parse_args()
 
 # TODO: add support for adding terms
@@ -110,6 +110,10 @@ def printAssignments(args):
     am = assignmentManager.assignmentManager.loadAssignments(args.name, args.term)
     am.printAssignments(args.name, args.term)
 
+def updateHandles(args):
+    sm = studentManager.rosterManager.loadRoster(args.name, args.term)
+    sm.updateGithubHandles(args.updateGithubHandles, args.rosterType)
+
 if __name__ == "__main__":
     args = parseArguments()
 
@@ -154,4 +158,10 @@ if __name__ == "__main__":
                 exit()
         if args.printAssignments:
             printAssignments(args)
+            exit()
+        if args.updateGithubHandles:
+            if args.rosterType == "gs":
+                updateHandles(args)
+            else:
+                print("Unrecognized csv type")
             exit()

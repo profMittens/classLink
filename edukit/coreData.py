@@ -28,6 +28,7 @@ class initializers():
         self.KEY_STATUS = "status"
         self.KEY_SECTION = "section"
         self.VAL_WA = "wa"
+        self.VAL_GS = "gs"
         self.KEY_NAME = "name"
         self.KEY_TEMPLATE = "template"
         self.KEY_POINTS = "points"

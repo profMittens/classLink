@@ -5,6 +5,7 @@ import uuid
 import logging
 import csv
 from collections import namedtuple
+
 inits = edukit.coreData.initializers()
 
 # Set up logging
@@ -114,6 +115,54 @@ class rosterManager(edukit.coreData.coreData):
                 msg = "{} {} dropped".format(fname, lname)
                 logger.info(msg)
                 print(msg)
+
+        if rosterChanged:
+            self.saveRoster()
+
+    def processGoogleCsv(self, csvPath):
+        fname = 0
+        lname = 1
+        email = 2
+        handle = 3
+        data = []
+        roster = []
+
+        with open(csvPath) as f:
+            reader= csv.reader(f)
+            for row in reader:
+                data.append(row)
+
+        # Restructure the data into a standard dictionary 
+        # that the updateRoster function will use
+        for s in data:
+            _s = {}
+            _s[inits.KEY_FNAME] = s[fname]
+            _s[inits.KEY_LNAME] = s[lname]
+            _s[inits.KEY_EMAIL] = s[email]
+            _s[inits.KEY_GITHUBHANDLE] = s[handle]
+            roster.append(_s)
+
+        return roster
+
+    def updateGithubHandles(self, csvPath, csvType):
+        if csvType.lower() == inits.VAL_GS.lower():
+            csvData = self.processGoogleCsv(csvPath)
+        else:
+            msg = "Unsupported csv type: {}".format(csvType)
+            logger.error(msg)
+            print(msg) 
+
+        rosterChanged = False
+        for s in csvData:
+            for student in self.roster:
+                if student[inits.KEY_FNAME].lower() == s[inits.KEY_FNAME].lower():
+                    if student[inits.KEY_LNAME].lower() == s[inits.KEY_LNAME].lower():
+                        if student[inits.KEY_GITHUBHANDLE] == inits.VAL_DEFAULT_STR or student[inits.KEY_GITHUBHANDLE] == "":
+                            msg = "Updating {} {}'s handle to {}".format(student[inits.KEY_FNAME], student[inits.KEY_LNAME], s[inits.KEY_GITHUBHANDLE])
+                            print(msg)
+                            logger.info(msg)
+                            student[inits.KEY_GITHUBHANDLE] = s[inits.KEY_GITHUBHANDLE]
+                            rosterChanged = True
 
         if rosterChanged:
             self.saveRoster()
