@@ -127,20 +127,6 @@ class rosterManager(edukit.coreData.coreData):
                 return s
         return None
 
-    def updateHandles(self, handleInfo):
-        fileModified = False
-
-        for h in handleInfo:
-            s = self.getStudent(h[inits.KEY_FNAME], h[inits.KEY_LNAME])
-            if s[inits.KEY_GITHUBHANDLE] == inits.VAL_DEFAULT_STR:
-                msg="Updating {} {}'s handle to {}".format(h[inits.KEY_FNAME], h[inits.KEY_LNAME], h[inits.KEY_GITHUBHANDLE])
-                fileModified = True
-                print(msg)
-                logger.info(msg)
-
-        if fileModified:
-            self.saveRoster()
-
     def getGithubHandles(self):
         SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
         store = file.Storage('secrets/credentials.json')
@@ -155,9 +141,8 @@ class rosterManager(edukit.coreData.coreData):
         with open('secrets/spreadsheet_id.txt') as f:
             sid = f.read()
         
-        SPREADSHEET_ID = '11sxYjU09oqVTqp6Yr24lTQuNEVxr-OyGdO_UIJNQNp4'
         RANGE_NAME = 'Form Responses 1!A2:E'
-        result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME).execute()
+        result = service.spreadsheets().values().get(spreadsheetId=sid, range=RANGE_NAME).execute()
         values = result.get('values', [])
 
         if not values:
