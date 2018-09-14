@@ -38,6 +38,7 @@ def parseArguments():
     parser.add_argument("-ag","--assignmentGithubName", help="The name of the assignment as published on github")
     parser.add_argument("-ad","--assignmentDueData", help="The due date for the assignment, in mm/dd/yyyy format")
     parser.add_argument("-pa","--printAssignments", help="Print the assignment list", action="store_true")
+    parser.add_argument("-da","--downloadAssignment", help="Download a given assignment from github")
     parser.add_argument("-uh","--updateGithubHandles", help="Update github handles from the specified csv, use -rt to specify csv type")
     return parser.parse_args()
 
@@ -114,6 +115,10 @@ def updateHandles(args):
     sm = studentManager.rosterManager.loadRoster(args.name, args.term)
     sm.updateGithubHandles(args.updateGithubHandles, args.rosterType)
 
+def cloneAssignments(args):
+    am = assignmentManager.assignmentManager.loadAssignments(args.name, args.term)
+    am.cloneAssignments(args.downloadAssignment)
+
 if __name__ == "__main__":
     args = parseArguments()
 
@@ -164,4 +169,7 @@ if __name__ == "__main__":
                 updateHandles(args)
             else:
                 print("Unrecognized csv type")
+            exit()
+        if args.downloadAssignment:
+            cloneAssignments(args)
             exit()

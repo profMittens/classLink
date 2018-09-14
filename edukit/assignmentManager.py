@@ -4,12 +4,18 @@ import json
 import uuid 
 import logging
 import csv
+import os
+import subprocess
 from collections import namedtuple
+from edukit.studentManager import rosterManager
 inits = edukit.coreData.initializers()
 
 # Set up logging
 logging.basicConfig(filename="logs/assignments.log", level=logging.INFO, format="%(asctime)s:%(levelname)s:%(message)s")
 logger = logging.getLogger(__name__)
+
+def git(*args):
+    return subprocess.check_call(['git'] + list(args))
 
 class assignmentManager(edukit.coreData.coreData):
     def __init__(self, className=inits.VAL_DEFAULT_STR, term=inits.VAL_DEFAULT_STR, initalizerInfo=None):
@@ -50,6 +56,52 @@ class assignmentManager(edukit.coreData.coreData):
             print("Github Name: {}".format(a[inits.KEY_GITHUBNAME]))
             print("Due Date: {}".format(a[inits.KEY_DUEDATE]))
             print()
+
+    def cloneAssignments(self, aName):
+        keyName = inits.KEY_NAME
+        keyBaseName = inits.KEY_GITHUBNAME
+        keyHandle = inits.KEY_GITHUBHANDLE
+        keyLName = inits.KEY_LNAME
+        keyFName = inits.KEY_FNAME
+
+        rm = rosterManager.loadRoster(self.className, self.term)
+
+        aFound = False
+        da = None
+        for a in self.assignments:
+            if a[inits.KEY_NAME] == aName:
+                da = a 
+                break
+            
+        if da == None:
+            print("No assignment with the name {} was found".format(aName))
+            return None
+            
+        outDir = "data/submissions/{}/{}".format(self.term, aName)
+        if not(os.path.isdir(outDir)):
+            os.makedirs(outDir)
+
+        msg ="Assignment found, downloading to {}".format(outDir)
+        logger.info(msg)
+        print(msg)
+        for s in rm.roster:
+            if s[inits.KEY_STATUS] == inits.STATUS_DROPPED:
+                continue
+            if s[inits.KEY_GITHUBHANDLE] == inits.VAL_DEFAULT_STR:
+                continue
+            url = "https://github.com/dsu-cs/{}-{}".format(da[keyName], s[keyHandle])
+            aPath = outDir+"/{}_{}_{}_{}".format(da[keyName], s[keyLName], s[keyFName], s[keyHandle])
+            git_cmd = "git clone {} {}".format(url, aPath)
+            logging.info("Executing: {}".format(git_cmd))
+            print("Executing: {}".format(git_cmd))
+            git("clone", url, aPath)
+        
+        for d in os.listdir(outDir):
+            print(d)
+            rm_cmd = "rm -rf {}/{}/.git*".format(outDir,d)
+            #git_cmd = "git add {}/{}/.git".format(out_dir,d)
+            os.system(rm_cmd)
+            #os.system(git_cmd)
 
     @staticmethod
     def createAssignmentManager(className, term):
