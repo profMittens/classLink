@@ -151,7 +151,6 @@ class rosterManager(edukit.coreData.coreData):
             msg = "Unsupported csv type: {}".format(csvType)
             logger.error(msg)
             print(msg) 
-
         rosterChanged = False
         for s in csvData:
             for student in self.roster:

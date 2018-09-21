@@ -89,12 +89,16 @@ class assignmentManager(edukit.coreData.coreData):
                 continue
             if s[inits.KEY_GITHUBHANDLE] == inits.VAL_DEFAULT_STR:
                 continue
-            url = "https://github.com/dsu-cs/{}-{}".format(da[keyName], s[keyHandle])
+            url = "https://github.com/dsu-cs/{}-{}".format(da[keyBaseName], s[keyHandle])
             aPath = outDir+"/{}_{}_{}_{}".format(da[keyName], s[keyLName], s[keyFName], s[keyHandle])
             git_cmd = "git clone {} {}".format(url, aPath)
             logging.info("Executing: {}".format(git_cmd))
             print("Executing: {}".format(git_cmd))
-            git("clone", url, aPath)
+            try:
+                git("clone", url, aPath)
+            except:
+                logging.error("Clone failed")
+                print("Clone failed")
         
         for d in os.listdir(outDir):
             print(d)
